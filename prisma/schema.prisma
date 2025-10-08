@@ -10,16 +10,16 @@ datasource db {
 
 // ログイン機能の実装をしてみたい
 
-// model Users {
-//   id        String      @id @unique @default(cuid())
-//   user_name String      @db.VarChar(30)
-//   Todo_list Todo_list[]
-// }
+model Users {
+  id        String      @id @unique @default(cuid())
+  user_name String      @db.VarChar(30)
+  Todo_list Todo_list[]
+}
 
 model Todo_list {
   id        String    @id @unique @default(cuid())
-  // user       Users    @relation(fields: [user_id], references: [id])
-  // user_id    String
+  user      Users     @relation(fields: [user_id], references: [id])
+  user_id   String
   todoTitle String    @db.VarChar(30)
   todoText  String    @db.VarChar(100)
   endTime   DateTime? @db.Date

@@ -92,62 +92,64 @@ export function TodoTable() {
   }
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>名前</TableHead>
-          <TableHead>終了時間</TableHead>
-          <TableHead>詳細</TableHead>
-          <TableHead>操作</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {todos.map((todo) => (
-          <TableRow key={todo.id}>
-            <TableCell className="font-medium">{todo.todoTitle}</TableCell>
-            <TableCell>
-              {todo.endTime
-                ? format(new Date(todo.endTime), "yyyy年MM月dd日", {
-                    locale: ja,
-                  })
-                : "未設定"}
-            </TableCell>
-            <TableCell>
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button variant="outline" size="sm">
-                    <Eye className="h-4 w-4" />
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>{todo.todoTitle}</DialogTitle>
-                    <DialogDescription>
-                      {todo.todoText || "詳細はありません"}
-                    </DialogDescription>
-                  </DialogHeader>
-                </DialogContent>
-              </Dialog>
-            </TableCell>
-            <TableCell>
-              <div className="flex space-x-2">
-                <Link href={`/?edit=${todo.id}`}>
-                  <Button variant="outline" size="sm">
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                </Link>
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => deleteTodo(todo.id)}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-            </TableCell>
+    <div className="max-h-full overflow-auto rounded-md border">
+      <Table>
+        <TableHeader className="sticky top-0 bg-white z-10">
+          <TableRow>
+            <TableHead>名前</TableHead>
+            <TableHead>終了時間</TableHead>
+            <TableHead>詳細</TableHead>
+            <TableHead>操作</TableHead>
           </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+        </TableHeader>
+        <TableBody>
+          {todos.map((todo) => (
+            <TableRow key={todo.id}>
+              <TableCell className="font-medium">{todo.todoTitle}</TableCell>
+              <TableCell>
+                {todo.endTime
+                  ? format(new Date(todo.endTime), "yyyy年MM月dd日", {
+                      locale: ja,
+                    })
+                  : "未設定"}
+              </TableCell>
+              <TableCell>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>{todo.todoTitle}</DialogTitle>
+                      <DialogDescription>
+                        {todo.todoText || "詳細はありません"}
+                      </DialogDescription>
+                    </DialogHeader>
+                  </DialogContent>
+                </Dialog>
+              </TableCell>
+              <TableCell>
+                <div className="flex space-x-2">
+                  <Link href={`/?edit=${todo.id}`}>
+                    <Button variant="outline" size="sm">
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                  </Link>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => deleteTodo(todo.id)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
   );
 }

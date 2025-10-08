@@ -1,14 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { updateTodoApiSchema } from "@/lib/validations";
+import { getSession } from "@/lib/session";
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const todo = await prisma.todo_list.findUnique({
-      where: { id: params.id },
+    const session = await getSession();
+
+    if (!session) {
+      return NextResponse.json({ error: "認証が必要です" }, { status: 401 });
+    }
+
+    const todo = await prisma.todo_list.findFirst({
+      where: {
+        id: params.id,
+        user_id: session.userId,
+      },
     });
 
     if (!todo) {
@@ -33,6 +43,12 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
+    const session = await getSession();
+
+    if (!session) {
+      return NextResponse.json({ error: "認証が必要です" }, { status: 401 });
+    }
+
     const body = await request.json();
 
     // zodでバリデーション
@@ -40,6 +56,21 @@ export async function PUT(
       ...body,
       id: params.id,
     });
+
+    // そのTodoがユーザーのものか確認
+    const existingTodo = await prisma.todo_list.findFirst({
+      where: {
+        id: params.id,
+        user_id: session.userId,
+      },
+    });
+
+    if (!existingTodo) {
+      return NextResponse.json(
+        { error: "Todoが見つかりません" },
+        { status: 404 }
+      );
+    }
 
     const todo = await prisma.todo_list.update({
       where: { id: params.id },
@@ -73,6 +104,27 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
+    const session = await getSession();
+
+    if (!session) {
+      return NextResponse.json({ error: "認証が必要です" }, { status: 401 });
+    }
+
+    // そのTodoがユーザーのものか確認
+    const existingTodo = await prisma.todo_list.findFirst({
+      where: {
+        id: params.id,
+        user_id: session.userId,
+      },
+    });
+
+    if (!existingTodo) {
+      return NextResponse.json(
+        { error: "Todoが見つかりません" },
+        { status: 404 }
+      );
+    }
+
     await prisma.todo_list.delete({
       where: { id: params.id },
     });

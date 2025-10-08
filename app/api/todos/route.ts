@@ -1,10 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { createTodoApiSchema } from "@/lib/validations";
+import { getSession } from "@/lib/session";
 
 export async function GET() {
   try {
+    const session = await getSession();
+
+    if (!session) {
+      return NextResponse.json({ error: "認証が必要です" }, { status: 401 });
+    }
+
     const todos = await prisma.todo_list.findMany({
+      where: {
+        user_id: session.userId,
+      },
       orderBy: {
         endTime: "asc",
       },
@@ -22,6 +32,12 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await getSession();
+
+    if (!session) {
+      return NextResponse.json({ error: "認証が必要です" }, { status: 401 });
+    }
+
     const body = await request.json();
 
     // zodでバリデーション
@@ -32,6 +48,7 @@ export async function POST(request: NextRequest) {
         todoTitle: validatedData.todoTitle,
         todoText: validatedData.todoText || "",
         endTime: validatedData.endTime,
+        user_id: session.userId,
       },
     });
 
